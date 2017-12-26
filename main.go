@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	tb "gopkg.in/tucnak/telebot.v2"
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	b, err := tb.NewBot(tb.Settings{
-		Token:  "MY_TOKEN",
+		Token:  os.Getenv("TELEGRAM_TOKEN"),
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
 
