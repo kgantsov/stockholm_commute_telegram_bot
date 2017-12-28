@@ -204,7 +204,7 @@ func main() {
 		var trips TripsResult
 		err := json.NewDecoder(response.Body).Decode(&trips)
 		if err != nil {
-			fmt.Println("ERRORRRRRRRRRRRRRRRRRRRRR", err.Error())
+			fmt.Println("ERROR", err.Error())
 			return
 		}
 
@@ -219,7 +219,7 @@ func main() {
 		var trips TripsResult
 		err := json.NewDecoder(response.Body).Decode(&trips)
 		if err != nil {
-			fmt.Println("ERRORRRRRRRRRRRRRRRRRRRRR", err.Error())
+			fmt.Println("ERROR", err.Error())
 			return
 		}
 
