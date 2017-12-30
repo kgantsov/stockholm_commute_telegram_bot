@@ -124,14 +124,14 @@ type TripsResult struct {
 func getTravelHomeURL() string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=9117&destID=9701&lang=en",
-		os.Getenv("SL_API_KEY"),
+		os.Getenv("SL_PLANNING_API_KEY"),
 	)
 }
 
 func getTravelWorkURL() string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=9701&destID=9117&lang=en",
-		os.Getenv("SL_API_KEY"),
+		os.Getenv("SL_PLANNING_API_KEY"),
 	)
 }
 
