@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	tb "gopkg.in/tucnak/telebot.v2"
@@ -121,17 +123,53 @@ type TripsResult struct {
 	ServerVersion  string `json:"serverVersion"`
 }
 
-func getTravelHomeURL() string {
+type Station struct {
+	Name   string `json:"Name"`
+	SiteID string `json:"SiteId"`
+	Type   string `json:"Type"`
+	X      string `json:"X"`
+	Y      string `json:"Y"`
+}
+
+type LookupResult struct {
+	ExecutionTime int         `json:"ExecutionTime"`
+	Message       interface{} `json:"Message"`
+	ResponseData  []Station   `json:"ResponseData"`
+	StatusCode    int         `json:"StatusCode"`
+}
+
+type UserPoints struct {
+	HomeName string
+	HomeID   string
+	WorkName string
+	WorkID   string
+}
+
+var userTextMap map[int]UserPoints
+
+func getTravelHomeURL(u UserPoints) string {
 	return fmt.Sprintf(
-		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=9117&destID=9701&lang=en",
+		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
+		u.WorkID,
+		u.HomeID,
 	)
 }
 
-func getTravelWorkURL() string {
+func getTravelWorkURL(u UserPoints) string {
 	return fmt.Sprintf(
-		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=9701&destID=9117&lang=en",
+		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
+		u.HomeID,
+		u.WorkID,
+	)
+}
+
+func getLookupStationURL(query string) string {
+	return fmt.Sprintf(
+		"http://api.sl.se/api2/typeahead.json?key=%s&SearchString=%s&StationOnly=True&MaxResults=6&lang=en",
+		os.Getenv("SL_LOOKUP_API_KEY"),
+		url.QueryEscape(query),
 	)
 }
 
@@ -180,6 +218,9 @@ func getMessageForTrip(trip Trip) string {
 }
 
 func main() {
+	userTextMap = make(map[int]UserPoints)
+	var mutex = &sync.Mutex{}
+
 	b, err := tb.NewBot(tb.Settings{
 		Token:  os.Getenv("TELEGRAM_TOKEN"),
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
@@ -199,7 +240,15 @@ func main() {
 	})
 
 	b.Handle("/home", func(m *tb.Message) {
-		response, _ := netClient.Get(getTravelHomeURL())
+		mutex.Lock()
+		u, ok := userTextMap[m.Sender.ID]
+		mutex.Unlock()
+
+		if !ok {
+			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
+		}
+
+		response, _ := netClient.Get(getTravelHomeURL(u))
 
 		var trips TripsResult
 		err := json.NewDecoder(response.Body).Decode(&trips)
@@ -214,7 +263,15 @@ func main() {
 	})
 
 	b.Handle("/work", func(m *tb.Message) {
-		response, _ := netClient.Get(getTravelWorkURL())
+		mutex.Lock()
+		u, ok := userTextMap[m.Sender.ID]
+		mutex.Unlock()
+
+		if !ok {
+			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
+		}
+
+		response, _ := netClient.Get(getTravelWorkURL(u))
 
 		var trips TripsResult
 		err := json.NewDecoder(response.Body).Decode(&trips)
@@ -226,6 +283,82 @@ func main() {
 		for _, trip := range trips.Trip {
 			b.Send(m.Sender, getMessageForTrip(trip), tb.ModeMarkdown)
 		}
+	})
+
+	b.Handle("/set_home", func(m *tb.Message) {
+		response, _ := netClient.Get(getLookupStationURL(m.Payload))
+
+		var lookup LookupResult
+		err := json.NewDecoder(response.Body).Decode(&lookup)
+		if err != nil {
+			fmt.Println("ERROR", err.Error())
+			return
+		}
+
+		var replyKeys [][]tb.ReplyButton
+
+		for _, station := range lookup.ResponseData {
+			replyBtn := tb.ReplyButton{Text: station.Name}
+
+			b.Handle(&replyBtn, func(st Station) func(m *tb.Message) {
+				return func(m *tb.Message) {
+					mutex.Lock()
+					if _, ok := userTextMap[m.Sender.ID]; !ok {
+						userTextMap[m.Sender.ID] = UserPoints{}
+					}
+
+					userTextMap[m.Sender.ID] = UserPoints{
+						HomeID:   st.SiteID,
+						HomeName: st.Name,
+						WorkID:   userTextMap[m.Sender.ID].WorkID,
+						WorkName: userTextMap[m.Sender.ID].WorkName,
+					}
+					mutex.Unlock()
+				}
+			}(station))
+
+			replyKeys = append(replyKeys, []tb.ReplyButton{replyBtn})
+		}
+
+		b.Send(m.Sender, "", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
+	})
+
+	b.Handle("/set_work", func(m *tb.Message) {
+		response, _ := netClient.Get(getLookupStationURL(m.Payload))
+
+		var lookup LookupResult
+		err := json.NewDecoder(response.Body).Decode(&lookup)
+		if err != nil {
+			fmt.Println("ERROR", err.Error())
+			return
+		}
+
+		var replyKeys [][]tb.ReplyButton
+
+		for _, station := range lookup.ResponseData {
+			replyBtn := tb.ReplyButton{Text: station.Name}
+
+			b.Handle(&replyBtn, func(st Station) func(m *tb.Message) {
+				return func(m *tb.Message) {
+					mutex.Lock()
+					if _, ok := userTextMap[m.Sender.ID]; !ok {
+						userTextMap[m.Sender.ID] = UserPoints{}
+					}
+
+					userTextMap[m.Sender.ID] = UserPoints{
+						HomeID:   userTextMap[m.Sender.ID].HomeID,
+						HomeName: userTextMap[m.Sender.ID].HomeName,
+						WorkID:   st.SiteID,
+						WorkName: st.Name,
+					}
+					mutex.Unlock()
+				}
+			}(station))
+
+			replyKeys = append(replyKeys, []tb.ReplyButton{replyBtn})
+		}
+
+		b.Send(m.Sender, "", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
 	})
 
 	b.Start()
