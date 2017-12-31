@@ -320,7 +320,7 @@ func main() {
 			replyKeys = append(replyKeys, []tb.ReplyButton{replyBtn})
 		}
 
-		b.Send(m.Sender, "", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
+		b.Send(m.Sender, "Choose location:", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
 	})
 
 	b.Handle("/set_work", func(m *tb.Message) {
@@ -358,7 +358,7 @@ func main() {
 			replyKeys = append(replyKeys, []tb.ReplyButton{replyBtn})
 		}
 
-		b.Send(m.Sender, "", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
+		b.Send(m.Sender, "Choose location:", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
 	})
 
 	b.Start()
