@@ -219,7 +219,7 @@ func getMessageForTrip(trip Trip) string {
 
 func main() {
 	userTextMap = make(map[int]UserPoints)
-	var mutex = &sync.Mutex{}
+	var mutex = &sync.RWMutex{}
 
 	b, err := tb.NewBot(tb.Settings{
 		Token:  os.Getenv("TELEGRAM_TOKEN"),
@@ -240,9 +240,9 @@ func main() {
 	})
 
 	b.Handle("/home", func(m *tb.Message) {
-		mutex.Lock()
+		mutex.RLock()
 		u, ok := userTextMap[m.Sender.ID]
-		mutex.Unlock()
+		mutex.RUnlock()
 
 		if !ok {
 			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
@@ -263,9 +263,9 @@ func main() {
 	})
 
 	b.Handle("/work", func(m *tb.Message) {
-		mutex.Lock()
+		mutex.RLock()
 		u, ok := userTextMap[m.Sender.ID]
-		mutex.Unlock()
+		mutex.RUnlock()
 
 		if !ok {
 			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
