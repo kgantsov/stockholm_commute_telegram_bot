@@ -67,6 +67,11 @@ func main() {
 	b.Handle("/set_home", func(m *tb.Message) {
 		lookup := sl.GetStationsByName(m.Payload)
 
+		if len(lookup.ResponseData) == 0 {
+			b.Send(m.Sender, "No stations found")
+			return
+		}
+
 		var replyKeys [][]tb.ReplyButton
 
 		for _, station := range lookup.ResponseData {
@@ -97,6 +102,11 @@ func main() {
 
 	b.Handle("/set_work", func(m *tb.Message) {
 		lookup := sl.GetStationsByName(m.Payload)
+
+		if len(lookup.ResponseData) == 0 {
+			b.Send(m.Sender, "No stations found")
+			return
+		}
 
 		var replyKeys [][]tb.ReplyButton
 
