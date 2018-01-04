@@ -142,6 +142,14 @@ type UserPoints struct {
 	WorkID   string
 }
 
+var typesMap = map[string]string{
+	"BUS": "B",
+	"MET": "T",
+	"TRM": "L",
+	"TRN": "J",
+	"SHP": "S",
+}
+
 type SLClient struct {
 	http        *http.Client
 	userTextMap map[int]UserPoints
@@ -196,10 +204,14 @@ func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 	)
 	tripDuration = endTripTime.Sub(startTripTime)
 
+	t := typesMap[trip.LegList.Leg[0].Product.CatOutS]
+
 	items = append(
 		items,
 		fmt.Sprintf(
-			"%s (*%s*)",
+			"*%s%s* %s (*%s*)",
+			t,
+			trip.LegList.Leg[0].Product.Line,
 			trip.LegList.Leg[0].Origin.Name,
 			startTripTime.Format("15:04"),
 		),
@@ -217,10 +229,14 @@ func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 			)
 		}
 
+		t = typesMap[leg.Product.CatOutS]
+
 		items = append(
 			items,
 			fmt.Sprintf(
-				"%s (*%s* | *%s*)%s",
+				"*%s%s* %s (*%s* | *%s*)%s",
+				t,
+				leg.Product.Line,
 				leg.Destination.Name,
 				destinationTime.Format("15:04"),
 				duration,
