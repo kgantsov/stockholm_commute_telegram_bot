@@ -150,14 +150,14 @@ var typesMap = map[string]string{
 	"SHP": "S",
 }
 
-type SLClient struct {
+type slClient struct {
 	http        *http.Client
 	userTextMap map[int]UserPoints
 	mutex       sync.RWMutex
 }
 
-func NewSLClient() *SLClient {
-	cl := new(SLClient)
+func NewSLClient() *slClient {
+	cl := new(slClient)
 
 	cl.http = &http.Client{
 		Timeout: time.Second * 10,
@@ -169,7 +169,7 @@ func NewSLClient() *SLClient {
 	return cl
 }
 
-func (cl *SLClient) getTravelHomeURL(u UserPoints) string {
+func (cl *slClient) getTravelHomeURL(u UserPoints) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -178,7 +178,7 @@ func (cl *SLClient) getTravelHomeURL(u UserPoints) string {
 	)
 }
 
-func (cl *SLClient) getTravelWorkURL(u UserPoints) string {
+func (cl *slClient) getTravelWorkURL(u UserPoints) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -187,7 +187,7 @@ func (cl *SLClient) getTravelWorkURL(u UserPoints) string {
 	)
 }
 
-func (cl *SLClient) GetLookupStationURL(query string) string {
+func (cl *slClient) GetLookupStationURL(query string) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/typeahead.json?key=%s&SearchString=%s&StationOnly=True&MaxResults=6&lang=en",
 		os.Getenv("SL_LOOKUP_API_KEY"),
@@ -195,7 +195,7 @@ func (cl *SLClient) GetLookupStationURL(query string) string {
 	)
 }
 
-func (cl *SLClient) GetMessageForTrip(trip Trip) string {
+func (cl *slClient) GetMessageForTrip(trip Trip) string {
 	var items []string
 	var tripDuration time.Duration
 	startTripTime, _ := time.Parse("15:04:05", trip.LegList.Leg[0].Origin.Time)
@@ -204,13 +204,13 @@ func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 	)
 	tripDuration = endTripTime.Sub(startTripTime)
 
-	t := typesMap[trip.LegList.Leg[0].Product.CatOutS]
+	transportType := typesMap[trip.LegList.Leg[0].Product.CatOutS]
 
 	items = append(
 		items,
 		fmt.Sprintf(
 			"*%s%s* %s (*%s*)",
-			t,
+			transportType,
 			trip.LegList.Leg[0].Product.Line,
 			trip.LegList.Leg[0].Origin.Name,
 			startTripTime.Format("15:04"),
@@ -229,13 +229,13 @@ func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 			)
 		}
 
-		t = typesMap[leg.Product.CatOutS]
+		transportType = typesMap[leg.Product.CatOutS]
 
 		items = append(
 			items,
 			fmt.Sprintf(
 				"*%s%s* %s (*%s* | *%s*)%s",
-				t,
+				transportType,
 				leg.Product.Line,
 				leg.Destination.Name,
 				destinationTime.Format("15:04"),
@@ -247,7 +247,7 @@ func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 	return fmt.Sprintf("*Trip:* %s \n *Duration:* %s", strings.Join(items, " *=>* "), tripDuration)
 }
 
-func (cl *SLClient) GetHomeTrips(u UserPoints) *TripsResult {
+func (cl *slClient) GetHomeTrips(u UserPoints) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelHomeURL(u))
 
 	var trips TripsResult
@@ -260,7 +260,7 @@ func (cl *SLClient) GetHomeTrips(u UserPoints) *TripsResult {
 	return &trips
 }
 
-func (cl *SLClient) GetWorkTrips(u UserPoints) *TripsResult {
+func (cl *slClient) GetWorkTrips(u UserPoints) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelWorkURL(u))
 
 	var trips TripsResult
@@ -273,7 +273,7 @@ func (cl *SLClient) GetWorkTrips(u UserPoints) *TripsResult {
 	return &trips
 }
 
-func (cl *SLClient) GetStationsByName(name string) *LookupResult {
+func (cl *slClient) GetStationsByName(name string) *LookupResult {
 	response, _ := cl.http.Get(cl.GetLookupStationURL(name))
 
 	var lookup LookupResult
