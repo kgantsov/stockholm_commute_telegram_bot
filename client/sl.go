@@ -142,7 +142,7 @@ type UserPoints struct {
 	WorkID   string
 }
 
-var typesMap = map[string]string{
+var transportTypesMap = map[string]string{
 	"BUS": "B",
 	"MET": "T",
 	"TRM": "L",
@@ -204,7 +204,7 @@ func (cl *slClient) GetMessageForTrip(trip Trip) string {
 	)
 	tripDuration = endTripTime.Sub(startTripTime)
 
-	transportType := typesMap[trip.LegList.Leg[0].Product.CatOutS]
+	transportType := transportTypesMap[trip.LegList.Leg[0].Product.CatOutS]
 
 	items = append(
 		items,
@@ -229,7 +229,7 @@ func (cl *slClient) GetMessageForTrip(trip Trip) string {
 			)
 		}
 
-		transportType = typesMap[leg.Product.CatOutS]
+		transportType = transportTypesMap[leg.Product.CatOutS]
 
 		items = append(
 			items,
