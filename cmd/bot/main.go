@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kgantsov/stockholm_commute_bot/client"
+	"github.com/kgantsov/stockholm_commute_bot/pkg/client"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
