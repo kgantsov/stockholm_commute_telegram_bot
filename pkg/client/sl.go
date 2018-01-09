@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -151,9 +150,7 @@ var transportTypesMap = map[string]string{
 }
 
 type slClient struct {
-	http        *http.Client
-	userTextMap map[int]UserPoints
-	mutex       sync.RWMutex
+	http *http.Client
 }
 
 func NewSLClient() *slClient {
@@ -162,9 +159,6 @@ func NewSLClient() *slClient {
 	cl.http = &http.Client{
 		Timeout: time.Second * 10,
 	}
-
-	cl.userTextMap = make(map[int]UserPoints)
-	cl.mutex = sync.RWMutex{}
 
 	return cl
 }
