@@ -3,18 +3,24 @@ package main
 import (
 	"log"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/kgantsov/stockholm_commute_bot/pkg/client"
+	"github.com/kgantsov/stockholm_commute_bot/pkg/models"
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-var userTextMap map[int]client.UserPoints
-
 func main() {
-	userTextMap = make(map[int]client.UserPoints)
-	var mutex = &sync.RWMutex{}
+	session, err := mgo.Dial(os.Getenv("MONGODB_URLS"))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	session.SetMode(mgo.Monotonic, true)
+	c := session.DB("commute_bot").C("users")
 
 	b, err := tb.NewBot(tb.Settings{
 		Token:  os.Getenv("TELEGRAM_TOKEN"),
@@ -33,11 +39,10 @@ func main() {
 	})
 
 	b.Handle("/home", func(m *tb.Message) {
-		mutex.RLock()
-		u, ok := userTextMap[m.Sender.ID]
-		mutex.RUnlock()
+		var u models.User
+		err := c.Find(bson.M{"id": m.Sender.ID}).One(&u)
 
-		if !ok {
+		if err != nil {
 			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
 		}
 
@@ -49,11 +54,10 @@ func main() {
 	})
 
 	b.Handle("/work", func(m *tb.Message) {
-		mutex.RLock()
-		u, ok := userTextMap[m.Sender.ID]
-		mutex.RUnlock()
+		var u models.User
+		err := c.Find(bson.M{"id": m.Sender.ID}).One(&u)
 
-		if !ok {
+		if err != nil {
 			b.Send(m.Sender, "Please setup home and work locations", tb.ModeMarkdown)
 		}
 
@@ -79,18 +83,40 @@ func main() {
 
 			b.Handle(&replyBtn, func(st client.Station) func(m *tb.Message) {
 				return func(m *tb.Message) {
-					mutex.Lock()
-					if _, ok := userTextMap[m.Sender.ID]; !ok {
-						userTextMap[m.Sender.ID] = client.UserPoints{}
+					var user models.User
+					err := c.Find(bson.M{"id": m.Sender.ID}).One(&user)
+
+					if err == nil {
+						err = c.Update(
+							bson.M{"id": m.Sender.ID},
+							&models.User{
+								ID:       m.Sender.ID,
+								Name:     m.Sender.FirstName,
+								HomeID:   st.SiteID,
+								HomeName: st.Name,
+								WorkName: user.WorkName,
+								WorkID:   user.WorkID,
+							},
+						)
+						if err != nil {
+							log.Fatal(err)
+						}
+					} else {
+						err = c.Insert(
+							&models.User{
+								ID:       m.Sender.ID,
+								Name:     m.Sender.FirstName,
+								HomeID:   st.SiteID,
+								HomeName: st.Name,
+								WorkName: "",
+								WorkID:   "",
+							},
+						)
+						if err != nil {
+							log.Fatal(err)
+						}
 					}
 
-					userTextMap[m.Sender.ID] = client.UserPoints{
-						HomeID:   st.SiteID,
-						HomeName: st.Name,
-						WorkID:   userTextMap[m.Sender.ID].WorkID,
-						WorkName: userTextMap[m.Sender.ID].WorkName,
-					}
-					mutex.Unlock()
 				}
 			}(station))
 
@@ -115,18 +141,39 @@ func main() {
 
 			b.Handle(&replyBtn, func(st client.Station) func(m *tb.Message) {
 				return func(m *tb.Message) {
-					mutex.Lock()
-					if _, ok := userTextMap[m.Sender.ID]; !ok {
-						userTextMap[m.Sender.ID] = client.UserPoints{}
-					}
+					var user models.User
+					err := c.Find(bson.M{"id": m.Sender.ID}).One(&user)
 
-					userTextMap[m.Sender.ID] = client.UserPoints{
-						HomeID:   userTextMap[m.Sender.ID].HomeID,
-						HomeName: userTextMap[m.Sender.ID].HomeName,
-						WorkID:   st.SiteID,
-						WorkName: st.Name,
+					if err == nil {
+						err = c.Update(
+							bson.M{"id": m.Sender.ID},
+							&models.User{
+								ID:       m.Sender.ID,
+								Name:     m.Sender.FirstName,
+								HomeID:   user.HomeID,
+								HomeName: user.HomeName,
+								WorkID:   st.SiteID,
+								WorkName: st.Name,
+							},
+						)
+						if err != nil {
+							log.Fatal(err)
+						}
+					} else {
+						err = c.Insert(
+							&models.User{
+								ID:       m.Sender.ID,
+								Name:     m.Sender.FirstName,
+								HomeID:   "",
+								HomeName: "",
+								WorkID:   st.SiteID,
+								WorkName: st.Name,
+							},
+						)
+						if err != nil {
+							log.Fatal(err)
+						}
 					}
-					mutex.Unlock()
 				}
 			}(station))
 

@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/kgantsov/stockholm_commute_bot/pkg/models"
 )
 
 type Trip struct {
@@ -134,13 +136,6 @@ type LookupResult struct {
 	StatusCode    int         `json:"StatusCode"`
 }
 
-type UserPoints struct {
-	HomeName string
-	HomeID   string
-	WorkName string
-	WorkID   string
-}
-
 var transportTypesMap = map[string]string{
 	"BUS": "B",
 	"MET": "T",
@@ -163,7 +158,7 @@ func NewSLClient() *slClient {
 	return cl
 }
 
-func (cl *slClient) getTravelHomeURL(u UserPoints) string {
+func (cl *slClient) getTravelHomeURL(u models.User) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -172,7 +167,7 @@ func (cl *slClient) getTravelHomeURL(u UserPoints) string {
 	)
 }
 
-func (cl *slClient) getTravelWorkURL(u UserPoints) string {
+func (cl *slClient) getTravelWorkURL(u models.User) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -241,7 +236,7 @@ func (cl *slClient) GetMessageForTrip(trip Trip) string {
 	return fmt.Sprintf("*Trip:* %s \n *Duration:* %s", strings.Join(items, " *=>* "), tripDuration)
 }
 
-func (cl *slClient) GetHomeTrips(u UserPoints) *TripsResult {
+func (cl *slClient) GetHomeTrips(u models.User) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelHomeURL(u))
 
 	var trips TripsResult
@@ -254,7 +249,7 @@ func (cl *slClient) GetHomeTrips(u UserPoints) *TripsResult {
 	return &trips
 }
 
-func (cl *slClient) GetWorkTrips(u UserPoints) *TripsResult {
+func (cl *slClient) GetWorkTrips(u models.User) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelWorkURL(u))
 
 	var trips TripsResult
