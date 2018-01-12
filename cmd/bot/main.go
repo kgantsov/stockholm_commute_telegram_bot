@@ -13,14 +13,14 @@ import (
 )
 
 func main() {
-	session, err := mgo.Dial(os.Getenv("MONGODB_URLS"))
+	db, err := mgo.Dial(os.Getenv("MONGODB_URLS"))
 	if err != nil {
 		panic(err)
 	}
-	defer session.Close()
+	defer db.Close()
 
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB("commute_bot").C("users")
+	db.SetMode(mgo.Monotonic, true)
+	c := db.DB("commute_bot").C("users")
 
 	b, err := tb.NewBot(tb.Settings{
 		Token:  os.Getenv("TELEGRAM_TOKEN"),
