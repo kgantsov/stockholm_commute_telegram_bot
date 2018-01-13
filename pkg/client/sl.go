@@ -144,12 +144,12 @@ var transportTypesMap = map[string]string{
 	"SHP": "S",
 }
 
-type slClient struct {
+type SLClient struct {
 	http *http.Client
 }
 
-func NewSLClient() *slClient {
-	cl := new(slClient)
+func NewSLClient() *SLClient {
+	cl := new(SLClient)
 
 	cl.http = &http.Client{
 		Timeout: time.Second * 10,
@@ -158,7 +158,7 @@ func NewSLClient() *slClient {
 	return cl
 }
 
-func (cl *slClient) getTravelHomeURL(u models.User) string {
+func (cl *SLClient) getTravelHomeURL(u models.User) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -167,7 +167,7 @@ func (cl *slClient) getTravelHomeURL(u models.User) string {
 	)
 }
 
-func (cl *slClient) getTravelWorkURL(u models.User) string {
+func (cl *SLClient) getTravelWorkURL(u models.User) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/TravelplannerV3/trip.json?key=%s&originID=%s&destID=%s&lang=en",
 		os.Getenv("SL_PLANNING_API_KEY"),
@@ -176,7 +176,7 @@ func (cl *slClient) getTravelWorkURL(u models.User) string {
 	)
 }
 
-func (cl *slClient) GetLookupStationURL(query string) string {
+func (cl *SLClient) GetLookupStationURL(query string) string {
 	return fmt.Sprintf(
 		"http://api.sl.se/api2/typeahead.json?key=%s&SearchString=%s&StationOnly=True&MaxResults=6&lang=en",
 		os.Getenv("SL_LOOKUP_API_KEY"),
@@ -184,7 +184,7 @@ func (cl *slClient) GetLookupStationURL(query string) string {
 	)
 }
 
-func (cl *slClient) GetMessageForTrip(trip Trip) string {
+func (cl *SLClient) GetMessageForTrip(trip Trip) string {
 	var items []string
 	var tripDuration time.Duration
 	startTripTime, _ := time.Parse("15:04:05", trip.LegList.Leg[0].Origin.Time)
@@ -236,7 +236,7 @@ func (cl *slClient) GetMessageForTrip(trip Trip) string {
 	return fmt.Sprintf("*Trip:* %s \n *Duration:* %s", strings.Join(items, " *=>* "), tripDuration)
 }
 
-func (cl *slClient) GetHomeTrips(u models.User) *TripsResult {
+func (cl *SLClient) GetHomeTrips(u models.User) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelHomeURL(u))
 
 	var trips TripsResult
@@ -249,7 +249,7 @@ func (cl *slClient) GetHomeTrips(u models.User) *TripsResult {
 	return &trips
 }
 
-func (cl *slClient) GetWorkTrips(u models.User) *TripsResult {
+func (cl *SLClient) GetWorkTrips(u models.User) *TripsResult {
 	response, _ := cl.http.Get(cl.getTravelWorkURL(u))
 
 	var trips TripsResult
@@ -262,7 +262,7 @@ func (cl *slClient) GetWorkTrips(u models.User) *TripsResult {
 	return &trips
 }
 
-func (cl *slClient) GetStationsByName(name string) *LookupResult {
+func (cl *SLClient) GetStationsByName(name string) *LookupResult {
 	response, _ := cl.http.Get(cl.GetLookupStationURL(name))
 
 	var lookup LookupResult
