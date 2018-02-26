@@ -87,6 +87,7 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 							&models.User{
 								ID:       m.Sender.ID,
 								Name:     m.Sender.FirstName,
+								ChatID:   m.Chat.ID,
 								HomeID:   st.SiteID,
 								HomeName: st.Name,
 								WorkName: user.WorkName,
@@ -101,6 +102,7 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 							&models.User{
 								ID:       m.Sender.ID,
 								Name:     m.Sender.FirstName,
+								ChatID:   m.Chat.ID,
 								HomeID:   st.SiteID,
 								HomeName: st.Name,
 								WorkName: "",
@@ -149,6 +151,7 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 							&models.User{
 								ID:       m.Sender.ID,
 								Name:     m.Sender.FirstName,
+								ChatID:   m.Chat.ID,
 								HomeID:   user.HomeID,
 								HomeName: user.HomeName,
 								WorkID:   st.SiteID,
@@ -163,6 +166,7 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 							&models.User{
 								ID:       m.Sender.ID,
 								Name:     m.Sender.FirstName,
+								ChatID:   m.Chat.ID,
 								HomeID:   "",
 								HomeName: "",
 								WorkID:   st.SiteID,
