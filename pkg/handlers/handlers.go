@@ -89,9 +89,11 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 								Name:     m.Sender.FirstName,
 								ChatID:   m.Chat.ID,
 								HomeID:   st.SiteID,
+								HomeTime: user.HomeTime,
 								HomeName: st.Name,
 								WorkName: user.WorkName,
 								WorkID:   user.WorkID,
+								WorkTime: user.WorkTime,
 							},
 						)
 						if err != nil {
@@ -105,8 +107,10 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 								ChatID:   m.Chat.ID,
 								HomeID:   st.SiteID,
 								HomeName: st.Name,
+								HomeTime: "",
 								WorkName: "",
 								WorkID:   "",
+								WorkTime: "",
 							},
 						)
 						if err != nil {
@@ -154,8 +158,10 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 								ChatID:   m.Chat.ID,
 								HomeID:   user.HomeID,
 								HomeName: user.HomeName,
+								HomeTime: user.HomeTime,
 								WorkID:   st.SiteID,
 								WorkName: st.Name,
+								WorkTime: user.WorkTime,
 							},
 						)
 						if err != nil {
@@ -169,8 +175,10 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 								ChatID:   m.Chat.ID,
 								HomeID:   "",
 								HomeName: "",
+								HomeTime: "",
 								WorkID:   st.SiteID,
 								WorkName: st.Name,
+								WorkTime: "",
 							},
 						)
 						if err != nil {
