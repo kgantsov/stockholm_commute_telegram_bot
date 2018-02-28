@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log"
+	"time"
 
 	"github.com/kgantsov/stockholm_commute_bot/pkg/client"
 	"github.com/kgantsov/stockholm_commute_bot/pkg/models"
@@ -128,6 +129,45 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+func SetHomeReminderHandler(app *App) func(m *tb.Message) {
+	return func(m *tb.Message) {
+		c := app.Session.DB("commute_bot").C("users")
+
+		const longForm = "3:04pm"
+		_, err := time.Parse(longForm, m.Payload)
+
+		if err != nil {
+			app.Bot.Send(m.Sender, "Time should be send in a format: 7:54am")
+			return
+		}
+
+		var user models.User
+		err = c.Find(bson.M{"id": m.Sender.ID}).One(&user)
+
+		if err == nil {
+			err = c.Update(
+				bson.M{"id": m.Sender.ID},
+				&models.User{
+					ID:       m.Sender.ID,
+					Name:     m.Sender.FirstName,
+					ChatID:   m.Chat.ID,
+					HomeID:   user.HomeID,
+					HomeTime: m.Payload,
+					HomeName: user.HomeName,
+					WorkName: user.WorkName,
+					WorkID:   user.WorkID,
+					WorkTime: user.WorkTime,
+				},
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			app.Bot.Send(m.Sender, "You need to set up home location first using /set_home command")
+		}
+	}
+}
+
 func SetWorkHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
@@ -192,5 +232,44 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 		}
 
 		app.Bot.Send(m.Sender, "Choose location:", &tb.ReplyMarkup{ReplyKeyboard: replyKeys})
+	}
+}
+
+func SetWorkReminderHandler(app *App) func(m *tb.Message) {
+	return func(m *tb.Message) {
+		c := app.Session.DB("commute_bot").C("users")
+
+		const longForm = "3:04pm"
+		_, err := time.Parse(longForm, m.Payload)
+
+		if err != nil {
+			app.Bot.Send(m.Sender, "Time should be send in a format: 7:54am")
+			return
+		}
+
+		var user models.User
+		err = c.Find(bson.M{"id": m.Sender.ID}).One(&user)
+
+		if err == nil {
+			err = c.Update(
+				bson.M{"id": m.Sender.ID},
+				&models.User{
+					ID:       m.Sender.ID,
+					Name:     m.Sender.FirstName,
+					ChatID:   m.Chat.ID,
+					HomeID:   user.HomeID,
+					HomeTime: user.HomeTime,
+					HomeName: user.HomeName,
+					WorkName: user.WorkName,
+					WorkID:   user.WorkID,
+					WorkTime: m.Payload,
+				},
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			app.Bot.Send(m.Sender, "You need to set up work location first using /set_work command")
+		}
 	}
 }

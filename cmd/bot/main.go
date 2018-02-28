@@ -38,7 +38,9 @@ func main() {
 	bot.Handle("/home", handlers.HomeHandler(&app))
 	bot.Handle("/work", handlers.WorkHandler(&app))
 	bot.Handle("/set_home", handlers.SetHomeHandler(&app))
+	bot.Handle("/set_home_reminder", handlers.SetHomeReminderHandler(&app))
 	bot.Handle("/set_work", handlers.SetWorkHandler(&app))
+	bot.Handle("/set_work_reminder", handlers.SetWorkReminderHandler(&app))
 
 	bot.Start()
 }
