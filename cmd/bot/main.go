@@ -26,7 +26,9 @@ func worker(app *handlers.App) {
 			trips := app.Sl.GetHomeTrips(user)
 
 			for _, trip := range trips.Trip {
-				app.Bot.Send(&tb.Chat{ID: user.ChatID}, app.Sl.GetMessageForTrip(trip), tb.ModeMarkdown)
+				app.Bot.Send(
+					&tb.Chat{ID: user.ChatID}, app.Sl.GetMessageForTrip(trip), tb.ModeMarkdown,
+				)
 			}
 		}
 
@@ -36,7 +38,9 @@ func worker(app *handlers.App) {
 			trips := app.Sl.GetWorkTrips(user)
 
 			for _, trip := range trips.Trip {
-				app.Bot.Send(&tb.Chat{ID: user.ChatID}, app.Sl.GetMessageForTrip(trip), tb.ModeMarkdown)
+				app.Bot.Send(
+					&tb.Chat{ID: user.ChatID}, app.Sl.GetMessageForTrip(trip), tb.ModeMarkdown,
+				)
 			}
 		}
 	}
