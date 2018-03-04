@@ -20,7 +20,7 @@ func worker(app *handlers.App) {
 
 	for t := range ticker.C {
 		var users []models.User
-		c.Find(bson.M{"home_time": t.Format(time.Kitchen)}).All(&users)
+		c.Find(bson.M{"home_time": t.UTC().Format(time.Kitchen)}).All(&users)
 
 		for _, user := range users {
 			trips := app.Sl.GetHomeTrips(user)
@@ -32,7 +32,7 @@ func worker(app *handlers.App) {
 			}
 		}
 
-		c.Find(bson.M{"work_time": t.Format(time.Kitchen)}).All(&users)
+		c.Find(bson.M{"work_time": t.UTC().Format(time.Kitchen)}).All(&users)
 
 		for _, user := range users {
 			trips := app.Sl.GetWorkTrips(user)

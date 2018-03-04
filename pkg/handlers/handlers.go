@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -133,8 +134,9 @@ func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
 
-		const longForm = "3:04pm"
-		t, err := time.Parse(longForm, m.Payload)
+		const longForm = "15:04 MST"
+		// zone, _ := time.Now().Zone() // get the local zone
+		t, err := time.Parse(longForm, fmt.Sprintf("%s %s", m.Payload, "CET"))
 
 		if err != nil {
 			app.Bot.Send(m.Sender, "Time should be send in a format: 7:54am")
@@ -152,7 +154,7 @@ func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 					Name:     m.Sender.FirstName,
 					ChatID:   m.Chat.ID,
 					HomeID:   user.HomeID,
-					HomeTime: t.Format(time.Kitchen),
+					HomeTime: t.UTC().Format(time.Kitchen),
 					HomeName: user.HomeName,
 					WorkName: user.WorkName,
 					WorkID:   user.WorkID,
@@ -239,8 +241,9 @@ func SetWorkReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
 
-		const longForm = "3:04pm"
-		t, err := time.Parse(longForm, m.Payload)
+		const longForm = "15:04 MST"
+		// zone, _ := time.Now().Zone() // get the local zone
+		t, err := time.Parse(longForm, fmt.Sprintf("%s %s", m.Payload, "CET"))
 
 		if err != nil {
 			app.Bot.Send(m.Sender, "Time should be send in a format: 7:54am")
@@ -262,7 +265,7 @@ func SetWorkReminderHandler(app *App) func(m *tb.Message) {
 					HomeName: user.HomeName,
 					WorkName: user.WorkName,
 					WorkID:   user.WorkID,
-					WorkTime: t.Format(time.Kitchen),
+					WorkTime: t.UTC().Format(time.Kitchen),
 				},
 			)
 			if err != nil {
