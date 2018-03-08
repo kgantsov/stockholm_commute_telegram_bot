@@ -9,6 +9,13 @@ pipeline:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  docker:
+    image: kgantsov/stockholm_commute_bot_app:latest
+    username: ${DOCKER_HUB_USER_NAME}
+    password: ${DOCKER_HUB_PASSWORD}
+    repo: kgantsov/stockholm_commute_bot_app
+    tags: latest
+
   #build:
   #  image: kgantsov/stockholm_commute_bot_app:latest
   #  commands:
