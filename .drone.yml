@@ -17,7 +17,7 @@ pipeline:
     #   - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
     # username: ${DOCKER_USERNAME}
     # password: ${DOCKER_PASSWORD}
-    registry: hub.docker.com
+    # registry: hub.docker.com
     secrets: [ docker_username, docker_password ]
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
