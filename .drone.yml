@@ -8,7 +8,6 @@ pipeline:
       - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
   docker:
     image: kgantsov/stockholm_commute_bot_app:latest
     username: ${DOCKER_HUB_USER_NAME}
