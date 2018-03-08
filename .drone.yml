@@ -1,19 +1,25 @@
 pipeline:
-  setup:
-    image: docker
-    commands:
-      # - docker build --rm -t foo/bar:baz .
-      # http://paislee.io/how-to-build-and-deploy-docker-images-with-drone/
-      # https://github.com/drone/drone/issues/1609#issuecomment-304986851
-      - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  docker:
-    image: kgantsov/stockholm_commute_bot_app:latest
+#  setup:
+#    image: docker
+#    commands:
+#      # - docker build --rm -t foo/bar:baz .
+#      # http://paislee.io/how-to-build-and-deploy-docker-images-with-drone/
+#      # https://github.com/drone/drone/issues/1609#issuecomment-304986851
+#      - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+  build:
+    image: plugins/docker
+    # commands:
+    #   # - docker build --rm -t foo/bar:baz .
+    #   # http://paislee.io/how-to-build-and-deploy-docker-images-with-drone/
+    #   # https://github.com/drone/drone/issues/1609#issuecomment-304986851
+    #   - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
     username: ${DOCKER_HUB_USER_NAME}
     password: ${DOCKER_HUB_PASSWORD}
     repo: kgantsov/stockholm_commute_bot_app
-    tags: latest
+    tag: latest
+    file: Dockerfile
 
   #build:
   #  image: kgantsov/stockholm_commute_bot_app:latest
