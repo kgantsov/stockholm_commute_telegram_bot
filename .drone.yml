@@ -1,0 +1,18 @@
+pipeline:
+  setup:
+    image: docker
+    commands:
+      # - docker build --rm -t foo/bar:baz .
+      # http://paislee.io/how-to-build-and-deploy-docker-images-with-drone/
+      # https://github.com/drone/drone/issues/1609#issuecomment-304986851
+      - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  #build:
+  #  image: kgantsov/stockholm_commute_bot_app:latest
+  #  commands:
+      # commands here
+#  notify:
+#    image: plugins/slack
+#    channel: developers
+#    username: drone
