@@ -10,23 +10,11 @@ pipeline:
 #      - /var/run/docker.sock:/var/run/docker.sock
   build:
     image: plugins/docker
-    # commands:
-    #   # - docker build --rm -t foo/bar:baz .
-    #   # http://paislee.io/how-to-build-and-deploy-docker-images-with-drone/
-    #   # https://github.com/drone/drone/issues/1609#issuecomment-304986851
-    #   - docker build --rm -t kgantsov/stockholm_commute_bot_app:latest --no-cache .
-    # username: ${DOCKER_USERNAME}
-    # password: ${DOCKER_PASSWORD}
     # registry: hub.docker.com
     secrets: [ docker_username, docker_password ]
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
     file: Dockerfile
-
-  #build:
-  #  image: kgantsov/stockholm_commute_bot_app:latest
-  #  commands:
-      # commands here
 #  notify:
 #    image: plugins/slack
 #    channel: developers
