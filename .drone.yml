@@ -10,7 +10,6 @@ pipeline:
 #      - /var/run/docker.sock:/var/run/docker.sock
   build:
     image: plugins/docker
-    # registry: hub.docker.com
     secrets: [ docker_username, docker_password ]
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
