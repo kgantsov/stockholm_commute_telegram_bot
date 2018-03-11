@@ -1,19 +1,23 @@
 package main
 
 import (
-	"log"
+	"flag"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/kgantsov/stockholm_commute_bot/pkg/client"
 	"github.com/kgantsov/stockholm_commute_bot/pkg/handlers"
 	"github.com/kgantsov/stockholm_commute_bot/pkg/models"
+	log "github.com/sirupsen/logrus"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 func worker(app *handlers.App) {
+	log.Info("Starting reminder worker...")
+
 	c := app.Session.DB("commute_bot").C("users")
 
 	ticker := time.NewTicker(time.Minute * 1)
@@ -23,6 +27,7 @@ func worker(app *handlers.App) {
 		c.Find(bson.M{"home_time": t.UTC().Format(time.Kitchen)}).All(&users)
 
 		for _, user := range users {
+			log.Info(fmt.Sprintf("Sending home trips for the user %d", user.ID))
 			trips := app.Sl.GetHomeTrips(user)
 
 			for _, trip := range trips.Trip {
@@ -35,6 +40,7 @@ func worker(app *handlers.App) {
 		c.Find(bson.M{"work_time": t.UTC().Format(time.Kitchen)}).All(&users)
 
 		for _, user := range users {
+			log.Info(fmt.Sprintf("Sending work trips for the user %d", user.ID))
 			trips := app.Sl.GetWorkTrips(user)
 
 			for _, trip := range trips.Trip {
@@ -47,6 +53,18 @@ func worker(app *handlers.App) {
 }
 
 func main() {
+	logLevel := flag.String("log_level", "info", "Log level")
+	flag.Parse()
+
+	level, err := log.ParseLevel(*logLevel)
+
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+
+	if err != nil {
+		log.Fatal("Fatal error: ", err.Error())
+	}
+	log.SetLevel(level)
+
 	session, err := mgo.Dial(os.Getenv("MONGODB_URLS"))
 	if err != nil {
 		panic(err)
@@ -79,5 +97,6 @@ func main() {
 
 	go worker(&app)
 
+	log.Info("Starting stockholm commute bot")
 	bot.Start()
 }
