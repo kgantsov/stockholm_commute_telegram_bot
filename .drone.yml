@@ -14,7 +14,11 @@ pipeline:
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
     file: Dockerfile
-#  notify:
-#    image: plugins/slack
-#    channel: developers
-#    username: drone
+
+pipeline:
+  slack:
+    image: plugins/slack
+    channel: dev
+    secrets: [ slack_webhook ]
+    when:
+      status: [ success, failure ]
