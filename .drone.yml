@@ -1,3 +1,7 @@
+# workspace:
+#   base: /go
+#   path: src/github.com/kgantsov/stockholm_commute_bot
+
 pipeline:
 #  setup:
 #    image: docker
@@ -21,4 +25,4 @@ pipeline:
     channel: dev
     secrets: [ slack_webhook ]
     when:
-      status: [ success, failure ]
+      status: changed
