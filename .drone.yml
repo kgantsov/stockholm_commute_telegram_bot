@@ -28,6 +28,8 @@ pipeline:
     script:
       - echo hello
       - echo world
+      - cd /apps/stockholm_commute_bot/
+      - docker-compose ps
 
 pipeline:
   slack:
