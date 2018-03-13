@@ -18,6 +18,16 @@ pipeline:
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
     file: Dockerfile
+  
+  ssh:
+    image: appleboy/drone-ssh
+    host: 51.15.86.4
+    username: root
+    port: 22
+    secrets: [ ssh_key ]
+    script:
+      - echo hello
+      - echo world
 
 pipeline:
   slack:
