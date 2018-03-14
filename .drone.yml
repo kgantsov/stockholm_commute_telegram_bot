@@ -30,6 +30,8 @@ pipeline:
       - echo world
       - cd /apps/stockholm_commute_bot/
       - docker-compose ps
+    when:
+      event: [ tag ]
 
 pipeline:
   slack:
