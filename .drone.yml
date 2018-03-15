@@ -18,6 +18,7 @@ pipeline:
     repo: kgantsov/stockholm_commute_bot_app
     tag: latest
     file: Dockerfile
+    event: [ push, tag ]
   
   ssh:
     image: appleboy/drone-ssh
