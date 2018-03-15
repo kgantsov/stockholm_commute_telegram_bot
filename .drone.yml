@@ -29,7 +29,9 @@ pipeline:
       - echo hello
       - echo world
       - cd /apps/stockholm_commute_bot/
-      - docker-compose ps
+      - docker-compose pull
+      - docker-compose stop bot_api
+      - docker-compose up -d bot_api
     when:
       event: [ tag ]
 
