@@ -20,7 +20,7 @@ pipeline:
     file: Dockerfile
     when:
       event: [ push, tag ]
-    auto_tag: true
+    # auto_tag: true
   
   ssh:
     image: appleboy/drone-ssh
