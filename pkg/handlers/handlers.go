@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/kgantsov/stockholm_commute_bot/pkg/client"
 	"github.com/kgantsov/stockholm_commute_bot/pkg/models"
@@ -64,6 +65,8 @@ func WorkHandler(app *App) func(m *tb.Message) {
 
 func SetHomeHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
+		log.Debug(fmt.Sprintf("SetHomeHandler triggered <%s>", m.Payload))
+
 		c := app.Session.DB("commute_bot").C("users")
 
 		lookup := app.Sl.GetStationsByName(m.Payload)
@@ -132,6 +135,8 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 
 func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
+		log.Debug(fmt.Sprintf("SetHomeReminderHandler triggered <%s>", m.Payload))
+
 		c := app.Session.DB("commute_bot").C("users")
 
 		const longForm = "Monday, 02-Jan-06 15:04:05 -0700"
@@ -171,6 +176,8 @@ func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 
 func SetWorkHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
+		log.Debug(fmt.Sprintf("SetWorkHandler triggered <%s>", m.Payload))
+
 		c := app.Session.DB("commute_bot").C("users")
 
 		lookup := app.Sl.GetStationsByName(m.Payload)
@@ -238,6 +245,8 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 
 func SetWorkReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
+		log.Debug(fmt.Sprintf("SetWorkReminderHandler triggered <%s>", m.Payload))
+
 		c := app.Session.DB("commute_bot").C("users")
 
 		const longForm = "Monday, 02-Jan-06 15:04:05 -0700"
