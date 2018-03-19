@@ -1,6 +1,6 @@
-# workspace:
-#   base: /go
-#   path: src/github.com/kgantsov/stockholm_commute_bot
+workspace:
+  base: /go
+  path: src/github.com/kgantsov/stockholm_commute_bot
 
 pipeline:
 #  setup:
