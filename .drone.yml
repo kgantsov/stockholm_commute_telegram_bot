@@ -52,4 +52,4 @@ pipeline:
     channel: dev
     secrets: [ slack_webhook ]
     when:
-      status: changed
+      status: [ success, failure ]
