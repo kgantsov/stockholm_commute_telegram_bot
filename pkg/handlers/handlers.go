@@ -21,7 +21,17 @@ type App struct {
 
 func StartHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
-		app.Bot.Send(m.Sender, "Hi this is a StockholmCommuteBot")
+		app.Bot.Send(
+			m.Sender,
+			"Hi this is a @StockholmCommuteBot\n\n"+
+				"/start - Start communication with the bot\n"+
+				"/home - Get schedule from work to home\n"+
+				"/work - Get schedule from home to work\n"+
+				"/set_home - Set home location\n"+
+				"/set_home_reminder - Set home reminder\n"+
+				"/set_work - Set work location\n"+
+				"/set_work_reminder - Set work reminder\n",
+		)
 	}
 }
 
