@@ -23,7 +23,8 @@ func StartHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		app.Bot.Send(
 			m.Sender,
-			"Hi this is a @StockholmCommuteBot\n\n"+
+			"Hi, this is a @StockholmCommuteBot. It will provide you with information about"+
+				"SL shedules in Stockholm. There are a list of command available in this bot: \n\n"+
 				"/start - Start communication with the bot\n"+
 				"/home - Get schedule from work to home\n"+
 				"/work - Get schedule from home to work\n"+
