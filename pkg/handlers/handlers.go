@@ -151,7 +151,7 @@ func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
 
 		const longForm = "Monday, 02-Jan-06 15:04:05 -0700"
-		t, err := time.Parse(longForm, fmt.Sprintf("Monday, 12-Jan-16 %s:25 +0100", m.Payload))
+		t, err := time.Parse(longForm, fmt.Sprintf("Monday, 12-Jan-16 %s:25 +0200", m.Payload))
 
 		if err != nil {
 			app.Bot.Send(m.Sender, "Time should be send in a format: 16:35")
@@ -261,7 +261,7 @@ func SetWorkReminderHandler(app *App) func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
 
 		const longForm = "Monday, 02-Jan-06 15:04:05 -0700"
-		t, err := time.Parse(longForm, fmt.Sprintf("Monday, 12-Jan-16 %s:25 +0100", m.Payload))
+		t, err := time.Parse(longForm, fmt.Sprintf("Monday, 12-Jan-16 %s:25 +0200", m.Payload))
 
 		if err != nil {
 			app.Bot.Send(m.Sender, "Time should be send in a format: 16:35")
