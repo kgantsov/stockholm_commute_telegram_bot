@@ -19,6 +19,7 @@ type App struct {
 	Sl      *client.SLClient
 }
 
+// StartHandler is a handler function that returns list of all command bots
 func StartHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		app.Bot.Send(
@@ -36,6 +37,7 @@ func StartHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// HomeHandler is a handler function that sends information about trips to a home destination
 func HomeHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
@@ -55,6 +57,7 @@ func HomeHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// WorkHandler is a handler function that sends information about trips to a work destination
 func WorkHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		c := app.Session.DB("commute_bot").C("users")
@@ -74,6 +77,7 @@ func WorkHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// SetHomeHandler is a handler function that receives home location and saves it to a DB
 func SetHomeHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		log.Debug(fmt.Sprintf("SetHomeHandler triggered <%s>", m.Payload))
@@ -144,6 +148,7 @@ func SetHomeHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// SetHomeReminderHandler is a handler function that receives home reminder and saves it to a DB
 func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		log.Debug(fmt.Sprintf("SetHomeReminderHandler triggered <%s>", m.Payload))
@@ -185,6 +190,7 @@ func SetHomeReminderHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// SetWorkHandler is a handler function that receives work location and saves it to a DB
 func SetWorkHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		log.Debug(fmt.Sprintf("SetWorkHandler triggered <%s>", m.Payload))
@@ -254,6 +260,7 @@ func SetWorkHandler(app *App) func(m *tb.Message) {
 	}
 }
 
+// SetWorkReminderHandler is a handler function that receives work reminder and saves it to a DB
 func SetWorkReminderHandler(app *App) func(m *tb.Message) {
 	return func(m *tb.Message) {
 		log.Debug(fmt.Sprintf("SetWorkReminderHandler triggered <%s>", m.Payload))
