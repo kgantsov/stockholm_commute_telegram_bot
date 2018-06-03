@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  bot_api:
+    container_name: bot_api
+    restart: always
+    build: .
+    env_file: .environment
+    links:
+      - mongodb:mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: on-failure
+    command: /app
+
+  mongodb:
+    image: mongo:3.6.1-jessie
+    container_name: mongodb
+    restart: always
+    volumes:
+      - ./data/db:/data/db
+    #ports:
+    #  - 27017:27017
+    #expose:
+    #  - "27017/tcp"
+    networks:
+      - backend
+
+
+networks:
+  frontend:
+  backend:
